@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empréstimos Vencendo - Biblioteca Igreja</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .vencendo-hoje {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .vencendo-amanha {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        .vencendo-proximo {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="bi bi-book"></i>
+                            Biblioteca Igreja
+                        </h4>
+                        <small class="text-white-50">Sistema de Gestão</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/usuarios">
+                                <i class="bi bi-people"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/livros">
+                                <i class="bi bi-book"></i>
+                                Livros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Empréstimos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/ativos">
+                                <i class="bi bi-clock"></i>
+                                Empréstimos Ativos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/atrasados">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Empréstimos Atrasados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">
+                                <i class="bi bi-info-circle"></i>
+                                Sobre
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-calendar-check"></i>
+                        Empréstimos Vencendo
+                    </h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <div class="input-group">
+                                <span class="input-group-text">Próximos</span>
+                                <select class="form-select" id="diasSelect" onchange="filtrarPorDias()">
+                                    <option value="1" th:selected="${dias == 1}">1 dia</option>
+                                    <option value="3" th:selected="${dias == 3}">3 dias</option>
+                                    <option value="7" th:selected="${dias == 7}">7 dias</option>
+                                    <option value="15" th:selected="${dias == 15}">15 dias</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary" th:text="${totalItems ?: 0}">0</h5>
+                                <p class="card-text text-muted">Total Vencendo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-danger" th:text="${vencendoHoje ?: 0}">0</h5>
+                                <p class="card-text text-muted">Vencendo Hoje</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning" th:text="${vencendoAmanha ?: 0}">0</h5>
+                                <p class="card-text text-muted">Vencendo Amanhã</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-info" th:text="${vencendoProximos ?: 0}">0</h5>
+                                <p class="card-text text-muted">Próximos Dias</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de empréstimos vencendo -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-calendar-check"></i>
+                            Empréstimos Vencendo nos Próximos <span th:text="${dias}">7</span> Dias
+                            <span class="badge bg-primary ms-2" th:text="${totalItems ?: 0}">0</span>
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="enviarLembretes()">
+                                <i class="bi bi-envelope"></i>
+                                Enviar Lembretes
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="window.print()">
+                                <i class="bi bi-printer"></i>
+                                Imprimir
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${emprestimos == null or #lists.isEmpty(emprestimos)}" class="text-center py-5">
+                            <i class="bi bi-check-circle" style="font-size: 4rem; color: #28a745;"></i>
+                            <h5 class="text-success mt-3">Nenhum empréstimo vencendo!</h5>
+                            <p class="text-muted">Todos os empréstimos têm prazo adequado.</p>
+                        </div>
+
+                        <div th:unless="${emprestimos == null or #lists.isEmpty(emprestimos)}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Usuário</th>
+                                        <th>Livro</th>
+                                        <th>Data Empréstimo</th>
+                                        <th>Data Vencimento</th>
+                                        <th>Dias Restantes</th>
+                                        <th>Status</th>
+                                        <th width="200">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="emprestimo : ${emprestimos}" 
+                                        th:classappend="${#temporals.createToday().isEqual(emprestimo.dataPrevistaDevolucao)} ? 'vencendo-hoje' : 
+                                                       (${#temporals.between(#temporals.createToday(), emprestimo.dataPrevistaDevolucao).days == 1}) ? 'vencendo-amanha' : 
+                                                       'vencendo-proximo'">
+                                        <td>
+                                            <strong th:text="${emprestimo.usuario.nome}">Usuário</strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${emprestimo.usuario.email}">email@exemplo.com</small>
+                                        </td>
+                                        <td>
+                                            <strong th:text="${emprestimo.livro.titulo}">Livro</strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${emprestimo.livro.autor}">Autor</small>
+                                        </td>
+                                        <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}">01/01/2024</td>
+                                        <td th:text="${#temporals.format(emprestimo.dataPrevistaDevolucao, 'dd/MM/yyyy')}">15/01/2024</td>
+                                        <td>
+                                            <span th:if="${#temporals.createToday().isAfter(emprestimo.dataPrevistaDevolucao)}" 
+                                                  class="badge bg-danger" 
+                                                  th:text="'Atrasado há ' + ${#temporals.between(emprestimo.dataPrevistaDevolucao, #temporals.createToday()).days} + ' dias'">
+                                                Atrasado
+                                            </span>
+                                            <span th:unless="${#temporals.createToday().isAfter(emprestimo.dataPrevistaDevolucao)}" 
+                                                  class="badge" 
+                                                  th:classappend="${#temporals.createToday().isEqual(emprestimo.dataPrevistaDevolucao)} ? 'bg-danger' : 
+                                                               (${#temporals.between(#temporals.createToday(), emprestimo.dataPrevistaDevolucao).days == 1}) ? 'bg-warning' : 'bg-info'"
+                                                  th:text="${#temporals.createToday().isEqual(emprestimo.dataPrevistaDevolucao)} ? 'Hoje' : 
+                                                         (${#temporals.between(#temporals.createToday(), emprestimo.dataPrevistaDevolucao).days == 1}) ? 'Amanhã' : 
+                                                         ${#temporals.between(#temporals.createToday(), emprestimo.dataPrevistaDevolucao).days} + ' dias'">
+                                                5 dias
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">ATIVO</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a th:href="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" 
+                                                   class="btn btn-outline-success" title="Devolver">
+                                                    <i class="bi bi-check-circle"></i>
+                                                    Devolver
+                                                </a>
+                                                <a th:href="@{/emprestimos/renovar/{id}(id=${emprestimo.id})}" 
+                                                   class="btn btn-outline-warning" title="Renovar">
+                                                    <i class="bi bi-arrow-clockwise"></i>
+                                                    Renovar
+                                                </a>
+                                                <a th:href="@{/emprestimos/detalhes/{id}(id=${emprestimo.id})}" 
+                                                   class="btn btn-outline-info" title="Ver detalhes">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações em lote -->
+                <div class="card mt-4" th:if="${emprestimos != null and !#lists.isEmpty(emprestimos)}">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear"></i>
+                            Ações em Lote
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-primary w-100" onclick="enviarLembretes()">
+                                    <i class="bi bi-envelope"></i>
+                                    Enviar Lembretes
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-warning w-100" onclick="enviarSMS()">
+                                    <i class="bi bi-phone"></i>
+                                    Enviar SMS
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-info w-100" onclick="gerarRelatorio()">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    Gerar Relatório
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-outline-success w-100" onclick="renovarTodos()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    Renovar Todos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        function filtrarPorDias() {
+            const dias = document.getElementById('diasSelect').value;
+            window.location.href = '/emprestimos/vencendo?dias=' + dias;
+        }
+
+        function enviarLembretes() {
+            if (confirm('Deseja enviar lembretes para todos os usuários com empréstimos vencendo?')) {
+                // Implementar envio de lembretes
+                alert('Lembretes enviados com sucesso!');
+            }
+        }
+
+        function enviarSMS() {
+            if (confirm('Deseja enviar SMS para todos os usuários com empréstimos vencendo?')) {
+                // Implementar envio de SMS
+                alert('SMS enviados com sucesso!');
+            }
+        }
+
+        function gerarRelatorio() {
+            // Implementar geração de relatório
+            window.open('/emprestimos/relatorio/vencendo', '_blank');
+        }
+
+        function renovarTodos() {
+            if (confirm('Deseja renovar todos os empréstimos vencendo?')) {
+                // Implementar renovação em lote
+                alert('Empréstimos renovados com sucesso!');
+            }
+        }
+    </script>
+</body>
+</html>

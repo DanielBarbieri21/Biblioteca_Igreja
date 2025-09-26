@@ -73,6 +73,16 @@ public class LivroService {
     @Transactional(readOnly = true)
     public Page<Livro> buscarPorCriterios(String titulo, String autor, String genero, 
                                         Integer ano, Boolean disponivel, Pageable pageable) {
+        // Se não há critérios de busca, retorna todos os livros ativos
+        if ((titulo == null || titulo.trim().isEmpty()) && 
+            (autor == null || autor.trim().isEmpty()) && 
+            (genero == null || genero.trim().isEmpty()) && 
+            ano == null && 
+            disponivel == null) {
+            return livroRepository.findByAtivoTrue(pageable);
+        }
+        
+        // Se há critérios, usa a busca avançada
         return livroRepository.findByCriterios(titulo, autor, genero, ano, disponivel, pageable);
     }
     

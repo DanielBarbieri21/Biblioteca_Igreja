@@ -96,7 +96,38 @@ public class DashboardController {
     }
     
     @GetMapping("/sobre")
-    public String sobre() {
+    public String sobre(Model model) {
+        try {
+            // Estatísticas gerais para a página sobre
+            long totalUsuarios = usuarioService.contarUsuariosAtivos();
+            long totalLivros = livroService.contarLivrosAtivos();
+            long livrosDisponiveis = livroService.contarLivrosDisponiveis();
+            long emprestimosAtivos = emprestimoService.contarEmprestimosAtivos();
+            long emprestimosAtrasados = emprestimoService.contarEmprestimosAtrasados();
+            
+            model.addAttribute("totalUsuarios", totalUsuarios);
+            model.addAttribute("totalLivros", totalLivros);
+            model.addAttribute("livrosDisponiveis", livrosDisponiveis);
+            model.addAttribute("emprestimosAtivos", emprestimosAtivos);
+            model.addAttribute("emprestimosAtrasados", emprestimosAtrasados);
+            
+            // Estatísticas adicionais
+            model.addAttribute("emprestimosHoje", 0);
+            model.addAttribute("totalEmprestimos", 0);
+            model.addAttribute("totalMultas", java.math.BigDecimal.ZERO);
+            
+        } catch (Exception e) {
+            // Em caso de erro, definir valores padrão
+            model.addAttribute("totalUsuarios", 0);
+            model.addAttribute("totalLivros", 0);
+            model.addAttribute("livrosDisponiveis", 0);
+            model.addAttribute("emprestimosAtivos", 0);
+            model.addAttribute("emprestimosAtrasados", 0);
+            model.addAttribute("emprestimosHoje", 0);
+            model.addAttribute("totalEmprestimos", 0);
+            model.addAttribute("totalMultas", java.math.BigDecimal.ZERO);
+        }
+        
         return "sobre";
     }
 }

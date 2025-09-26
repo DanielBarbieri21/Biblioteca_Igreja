@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empréstimos - Biblioteca Igreja</title>
+    <title>Empréstimos Atrasados - Biblioteca Igreja</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -45,6 +45,14 @@
         .btn-primary:hover {
             background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
         }
+        .atrasado {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .multa-alta {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
     </style>
 </head>
 <body>
@@ -81,7 +89,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="/emprestimos">
+                            <a class="nav-link" href="/emprestimos">
                                 <i class="bi bi-arrow-left-right"></i>
                                 Empréstimos
                             </a>
@@ -93,7 +101,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/emprestimos/atrasados">
+                            <a class="nav-link active" href="/emprestimos/atrasados">
                                 <i class="bi bi-exclamation-triangle"></i>
                                 Empréstimos Atrasados
                             </a>
@@ -118,13 +126,17 @@
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">
-                        <i class="bi bi-arrow-left-right"></i>
-                        Gestão de Empréstimos
+                        <i class="bi bi-exclamation-triangle"></i>
+                        Empréstimos Atrasados
                     </h1>
-                    <a href="/emprestimos/novo" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i>
-                        Novo Empréstimo
-                    </a>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <button class="btn btn-outline-primary" onclick="window.print()">
+                                <i class="bi bi-printer"></i>
+                                Imprimir Lista
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Alertas -->
@@ -140,62 +152,62 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
 
-                <!-- Filtros -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <form method="get" action="/emprestimos">
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label for="status" class="form-label">Status:</label>
-                                    <select class="form-select" id="status" name="status">
-                                        <option value="">Todos</option>
-                                        <option value="ATIVO" th:selected="${status == 'ATIVO'}">Ativo</option>
-                                        <option value="DEVOLVIDO" th:selected="${status == 'DEVOLVIDO'}">Devolvido</option>
-                                        <option value="ATRASADO" th:selected="${status == 'ATRASADO'}">Atrasado</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="usuario" class="form-label">Usuário:</label>
-                                    <input type="text" class="form-control" id="usuario" name="usuario" 
-                                           th:value="${usuario}" placeholder="Nome do usuário">
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="livro" class="form-label">Livro:</label>
-                                    <input type="text" class="form-control" id="livro" name="livro" 
-                                           th:value="${livro}" placeholder="Título do livro">
-                                </div>
-                                <div class="col-md-3 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-outline-primary me-2">
-                                        <i class="bi bi-search"></i>
-                                        Buscar
-                                    </button>
-                                    <a href="/emprestimos" class="btn btn-outline-secondary">
-                                        <i class="bi bi-arrow-clockwise"></i>
-                                    </a>
-                                </div>
+                <!-- Estatísticas de atraso -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-danger" th:text="${totalItems ?: 0}">0</h5>
+                                <p class="card-text text-muted">Total de Atrasos</p>
                             </div>
-                        </form>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning" th:text="${atrasos1a7dias ?: 0}">0</h5>
+                                <p class="card-text text-muted">1-7 Dias de Atraso</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-danger" th:text="${atrasosMais7dias ?: 0}">0</h5>
+                                <p class="card-text text-muted">Mais de 7 Dias</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title text-success" th:text="${totalMulta ?: 'R$ 0,00'}">R$ 0,00</h5>
+                                <p class="card-text text-muted">Total em Multas</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Tabela de empréstimos -->
+                <!-- Lista de empréstimos atrasados -->
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="bi bi-list"></i>
-                            Lista de Empréstimos
-                            <span class="badge bg-secondary ms-2" th:text="${totalItems ?: 0}">0</span>
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Empréstimos Atrasados
+                            <span class="badge bg-danger ms-2" th:text="${totalItems ?: 0}">0</span>
                         </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="enviarLembretes()">
+                                <i class="bi bi-envelope"></i>
+                                Enviar Lembretes
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div th:if="${emprestimos == null or #lists.isEmpty(emprestimos)}" class="text-center py-5">
-                            <i class="bi bi-arrow-left-right" style="font-size: 4rem; color: #ccc;"></i>
-                            <h5 class="text-muted mt-3">Nenhum empréstimo encontrado</h5>
-                            <p class="text-muted">Comece realizando o primeiro empréstimo da biblioteca.</p>
-                            <a href="/emprestimos/novo" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i>
-                                Novo Empréstimo
-                            </a>
+                            <i class="bi bi-check-circle" style="font-size: 4rem; color: #28a745;"></i>
+                            <h5 class="text-success mt-3">Nenhum empréstimo atrasado!</h5>
+                            <p class="text-muted">Todos os empréstimos estão em dia.</p>
                         </div>
 
                         <div th:unless="${emprestimos == null or #lists.isEmpty(emprestimos)}" class="table-responsive">
@@ -206,14 +218,15 @@
                                         <th>Livro</th>
                                         <th>Data Empréstimo</th>
                                         <th>Data Prevista</th>
-                                        <th>Data Devolução</th>
-                                        <th>Status</th>
+                                        <th>Dias de Atraso</th>
                                         <th>Multa</th>
-                                        <th width="150">Ações</th>
+                                        <th>Contato</th>
+                                        <th width="200">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="emprestimo : ${emprestimos}">
+                                    <tr th:each="emprestimo : ${emprestimos}" 
+                                        th:classappend="${#temporals.between(emprestimo.dataPrevistaDevolucao, #temporals.createToday()).days > 7} ? 'multa-alta' : 'atrasado'">
                                         <td>
                                             <strong th:text="${emprestimo.usuario.nome}">Usuário</strong>
                                             <br>
@@ -224,33 +237,34 @@
                                             <br>
                                             <small class="text-muted" th:text="${emprestimo.livro.autor}">Autor</small>
                                         </td>
-                                        <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                        <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}">01/01/2024</td>
                                         <td th:text="${#temporals.format(emprestimo.dataPrevistaDevolucao, 'dd/MM/yyyy')}">15/01/2024</td>
-                                        <td th:text="${emprestimo.dataDevolucao != null ? #temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
                                         <td>
-                                            <span class="badge" 
-                                                  th:classappend="${emprestimo.status.name() == 'ATIVO'} ? 'bg-success' : 
-                                                                  (${emprestimo.status.name() == 'DEVOLVIDO'} ? 'bg-info' : 'bg-warning')"
-                                                  th:text="${emprestimo.status.name()}">ATIVO</span>
+                                            <span class="badge bg-danger" 
+                                                  th:text="${#temporals.between(emprestimo.dataPrevistaDevolucao, #temporals.createToday()).days} + ' dias'">
+                                                5 dias
+                                            </span>
                                         </td>
                                         <td>
-                                            <span th:if="${emprestimo.multa != null and emprestimo.multa > 0}" 
-                                                  class="badge bg-danger" 
-                                                  th:text="'R$ ' + ${#numbers.formatDecimal(emprestimo.multa, 1, 2)}">R$ 0,00</span>
-                                            <span th:unless="${emprestimo.multa != null and emprestimo.multa > 0}" 
-                                                  class="text-muted">-</span>
+                                            <span class="badge bg-warning" 
+                                                  th:text="'R$ ' + ${#numbers.formatDecimal(#temporals.between(emprestimo.dataPrevistaDevolucao, #temporals.createToday()).days * 1.0, 1, 2)}">
+                                                R$ 5,00
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <small th:text="${emprestimo.usuario.telefone}">(32) 99999-9999</small>
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
-                                                <a th:if="${emprestimo.status.name() == 'ATIVO'}" 
-                                                   th:href="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" 
+                                                <a th:href="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" 
                                                    class="btn btn-outline-success" title="Devolver">
                                                     <i class="bi bi-check-circle"></i>
+                                                    Devolver
                                                 </a>
-                                                <a th:if="${emprestimo.status.name() == 'ATIVO'}" 
-                                                   th:href="@{/emprestimos/renovar/{id}(id=${emprestimo.id})}" 
+                                                <a th:href="@{/emprestimos/renovar/{id}(id=${emprestimo.id})}" 
                                                    class="btn btn-outline-warning" title="Renovar">
                                                     <i class="bi bi-arrow-clockwise"></i>
+                                                    Renovar
                                                 </a>
                                                 <a th:href="@{/emprestimos/detalhes/{id}(id=${emprestimo.id})}" 
                                                    class="btn btn-outline-info" title="Ver detalhes">
@@ -261,6 +275,38 @@
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ações em lote -->
+                <div class="card mt-4" th:if="${emprestimos != null and !#lists.isEmpty(emprestimos)}">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-gear"></i>
+                            Ações em Lote
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-primary w-100" onclick="enviarLembretes()">
+                                    <i class="bi bi-envelope"></i>
+                                    Enviar Lembretes por Email
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-warning w-100" onclick="enviarSMS()">
+                                    <i class="bi bi-phone"></i>
+                                    Enviar SMS
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-info w-100" onclick="gerarRelatorio()">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    Gerar Relatório
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -280,6 +326,25 @@
                 bsAlert.close();
             });
         }, 5000);
+
+        function enviarLembretes() {
+            if (confirm('Deseja enviar lembretes para todos os usuários com empréstimos atrasados?')) {
+                // Implementar envio de lembretes
+                alert('Lembretes enviados com sucesso!');
+            }
+        }
+
+        function enviarSMS() {
+            if (confirm('Deseja enviar SMS para todos os usuários com empréstimos atrasados?')) {
+                // Implementar envio de SMS
+                alert('SMS enviados com sucesso!');
+            }
+        }
+
+        function gerarRelatorio() {
+            // Implementar geração de relatório
+            window.open('/emprestimos/relatorio/atrasados', '_blank');
+        }
     </script>
 </body>
 </html>

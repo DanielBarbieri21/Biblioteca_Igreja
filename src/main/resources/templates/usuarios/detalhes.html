@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Usuário - Biblioteca Igreja</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .info-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .user-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="bi bi-book"></i>
+                            Biblioteca Igreja
+                        </h4>
+                        <small class="text-white-50">Sistema de Gestão</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/usuarios">
+                                <i class="bi bi-people"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/livros">
+                                <i class="bi bi-book"></i>
+                                Livros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Empréstimos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/ativos">
+                                <i class="bi bi-clock"></i>
+                                Empréstimos Ativos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/atrasados">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Empréstimos Atrasados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">
+                                <i class="bi bi-info-circle"></i>
+                                Sobre
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-person"></i>
+                        Detalhes do Usuário
+                    </h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <a href="/usuarios" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i>
+                                Voltar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <!-- Informações do Usuário -->
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-person"></i>
+                                    Informações Pessoais
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>ID:</strong>
+                                            <span th:text="${usuario.id}">#123</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Nome:</strong>
+                                            <span th:text="${usuario.nome}">João Silva</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Email:</strong>
+                                            <span th:text="${usuario.email}">joao@email.com</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Telefone:</strong>
+                                            <span th:text="${usuario.telefone}">(32) 99999-9999</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Data de Cadastro:</strong>
+                                            <span th:text="${#temporals.format(usuario.dataCadastro, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Status:</strong>
+                                            <span class="badge bg-success">Ativo</span>
+                                        </div>
+                                        <div class="info-item" th:if="${usuario.endereco != null and !#strings.isEmpty(usuario.endereco)}">
+                                            <strong>Endereço:</strong>
+                                            <span th:text="${usuario.endereco}">Rua das Flores, 123</span>
+                                        </div>
+                                        <div class="info-item" th:if="${usuario.dataNascimento != null}">
+                                            <strong>Data de Nascimento:</strong>
+                                            <span th:text="${#temporals.format(usuario.dataNascimento, 'dd/MM/yyyy')}">01/01/1990</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estatísticas de Empréstimos -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-graph-up"></i>
+                                    Estatísticas de Empréstimos
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 class="text-primary" th:text="${usuario.quantidadeEmprestimosAtivos ?: 0}">0</h3>
+                                            <p class="text-muted mb-0">Empréstimos Ativos</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 class="text-success" th:text="${totalEmprestimos ?: 0}">0</h3>
+                                            <p class="text-muted mb-0">Total de Empréstimos</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 class="text-info" th:text="${emprestimosDevolvidos ?: 0}">0</h3>
+                                            <p class="text-muted mb-0">Devolvidos</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h3 class="text-warning" th:text="${emprestimosAtrasados ?: 0}">0</h3>
+                                            <p class="text-muted mb-0">Atrasados</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Histórico de Empréstimos -->
+                        <div class="card" th:if="${usuario.emprestimos != null and !#lists.isEmpty(usuario.emprestimos)}">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-clock-history"></i>
+                                    Histórico de Empréstimos
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Livro</th>
+                                                <th>Data Empréstimo</th>
+                                                <th>Data Devolução</th>
+                                                <th>Status</th>
+                                                <th>Multa</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="emprestimo : ${usuario.emprestimos}">
+                                                <td>
+                                                    <strong th:text="${emprestimo.livro.titulo}">Título do Livro</strong>
+                                                    <br>
+                                                    <small class="text-muted" th:text="${emprestimo.livro.autor}">Autor</small>
+                                                </td>
+                                                <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}">01/01/2024</td>
+                                                <td th:text="${emprestimo.dataDevolucao != null ? #temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy') : '-'}">-</td>
+                                                <td>
+                                                    <span class="badge" 
+                                                          th:classappend="${emprestimo.status.name() == 'ATIVO'} ? 'bg-success' : 
+                                                                          (${emprestimo.status.name() == 'DEVOLVIDO'} ? 'bg-info' : 'bg-warning')"
+                                                          th:text="${emprestimo.status.name()}">ATIVO</span>
+                                                </td>
+                                                <td>
+                                                    <span th:if="${emprestimo.multa != null and emprestimo.multa > 0}" 
+                                                          class="badge bg-danger" 
+                                                          th:text="'R$ ' + ${#numbers.formatDecimal(emprestimo.multa, 1, 2)}">R$ 0,00</span>
+                                                    <span th:unless="${emprestimo.multa != null and emprestimo.multa > 0}" 
+                                                          class="text-muted">-</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avatar e Ações -->
+                    <div class="col-md-4">
+                        <!-- Avatar do Usuário -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-person-circle"></i>
+                                    Foto do Usuário
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="user-avatar">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <p class="text-muted mt-2">Foto não disponível</p>
+                            </div>
+                        </div>
+
+                        <!-- Ações -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-gear"></i>
+                                    Ações
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}" 
+                                       class="btn btn-primary">
+                                        <i class="bi bi-pencil"></i>
+                                        Editar Usuário
+                                    </a>
+                                    <a th:href="@{/emprestimos/novo?usuarioId={id}(id=${usuario.id})}" 
+                                       class="btn btn-success">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                        Novo Empréstimo
+                                    </a>
+                                    <button class="btn btn-outline-info" onclick="enviarEmail()">
+                                        <i class="bi bi-envelope"></i>
+                                        Enviar Email
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                                        <i class="bi bi-printer"></i>
+                                        Imprimir
+                                    </button>
+                                    <form th:action="@{/usuarios/excluir/{id}(id=${usuario.id})}" 
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger w-100 btn-delete" 
+                                                th:disabled="${usuario.quantidadeEmprestimosAtivos > 0}">
+                                            <i class="bi bi-trash"></i>
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status do Usuário -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-info-circle"></i>
+                                    Status
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${usuario.quantidadeEmprestimosAtivos > 0}" class="alert alert-info">
+                                    <i class="bi bi-clock"></i>
+                                    <strong>Usuário Ativo</strong>
+                                    <br>
+                                    <small>Possui <span th:text="${usuario.quantidadeEmprestimosAtivos}">0</span> empréstimo(s) ativo(s).</small>
+                                </div>
+                                <div th:unless="${usuario.quantidadeEmprestimosAtivos > 0}" class="alert alert-success">
+                                    <i class="bi bi-check-circle"></i>
+                                    <strong>Usuário Disponível</strong>
+                                    <br>
+                                    <small>Não possui empréstimos ativos.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Confirm delete actions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+                if (!confirm('Tem certeza que deseja excluir este usuário?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        function enviarEmail() {
+            // Implementar envio de email
+            alert('Email enviado com sucesso!');
+        }
+    </script>
+</body>
+</html>

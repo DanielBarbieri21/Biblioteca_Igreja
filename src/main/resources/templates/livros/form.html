@@ -149,7 +149,7 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <form th:action="${livro.id != null ? '/livros/editar/' + livro.id : '/livros/novo'}" 
+                        <form th:action="@{/livros/salvar}" 
                               th:object="${livro}" method="post">
                             
                             <div class="row">

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Empréstimo - Biblioteca Igreja</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .info-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .status-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="bi bi-book"></i>
+                            Biblioteca Igreja
+                        </h4>
+                        <small class="text-white-50">Sistema de Gestão</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/usuarios">
+                                <i class="bi bi-people"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/livros">
+                                <i class="bi bi-book"></i>
+                                Livros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/emprestimos">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Empréstimos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/ativos">
+                                <i class="bi bi-clock"></i>
+                                Empréstimos Ativos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/atrasados">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Empréstimos Atrasados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">
+                                <i class="bi bi-info-circle"></i>
+                                Sobre
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-info-circle"></i>
+                        Detalhes do Empréstimo
+                    </h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <a href="/emprestimos" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i>
+                                Voltar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <!-- Informações do Empréstimo -->
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                    Informações do Empréstimo
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>ID do Empréstimo:</strong>
+                                            <span th:text="${emprestimo.id}">#123</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Data do Empréstimo:</strong>
+                                            <span th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Data Prevista de Devolução:</strong>
+                                            <span th:text="${#temporals.format(emprestimo.dataPrevistaDevolucao, 'dd/MM/yyyy')}">15/01/2024</span>
+                                        </div>
+                                        <div class="info-item" th:if="${emprestimo.dataDevolucao != null}">
+                                            <strong>Data de Devolução:</strong>
+                                            <span th:text="${#temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy HH:mm')}">15/01/2024 14:30</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Status:</strong>
+                                            <span class="badge status-badge" 
+                                                  th:classappend="${emprestimo.status.name() == 'ATIVO'} ? 'bg-success' : 
+                                                                  (${emprestimo.status.name() == 'DEVOLVIDO'} ? 'bg-info' : 'bg-warning')"
+                                                  th:text="${emprestimo.status.name()}">ATIVO</span>
+                                        </div>
+                                        <div class="info-item" th:if="${emprestimo.multa != null and emprestimo.multa > 0}">
+                                            <strong>Multa:</strong>
+                                            <span class="badge bg-danger" 
+                                                  th:text="'R$ ' + ${#numbers.formatDecimal(emprestimo.multa, 1, 2)}">R$ 0,00</span>
+                                        </div>
+                                        <div class="info-item" th:if="${emprestimo.observacoes != null and !#strings.isEmpty(emprestimo.observacoes)}">
+                                            <strong>Observações:</strong>
+                                            <p th:text="${emprestimo.observacoes}" class="text-muted">Observações do empréstimo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações do Usuário -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-person"></i>
+                                    Informações do Usuário
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Nome:</strong>
+                                            <span th:text="${emprestimo.usuario.nome}">João Silva</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Email:</strong>
+                                            <span th:text="${emprestimo.usuario.email}">joao@email.com</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Telefone:</strong>
+                                            <span th:text="${emprestimo.usuario.telefone}">(32) 99999-9999</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Data de Cadastro:</strong>
+                                            <span th:text="${#temporals.format(emprestimo.usuario.dataCadastro, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações do Livro -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-book"></i>
+                                    Informações do Livro
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Título:</strong>
+                                            <span th:text="${emprestimo.livro.titulo}">Título do Livro</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Autor:</strong>
+                                            <span th:text="${emprestimo.livro.autor}">Nome do Autor</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>ISBN:</strong>
+                                            <span th:text="${emprestimo.livro.isbn}">978-85-123456-7-8</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Gênero:</strong>
+                                            <span class="badge bg-secondary" th:text="${emprestimo.livro.genero}">Religioso</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Ano de Publicação:</strong>
+                                            <span th:text="${emprestimo.livro.anoPublicacao}">2024</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Disponível:</strong>
+                                            <span class="badge" 
+                                                  th:classappend="${emprestimo.livro.quantidadeDisponivel > 0} ? 'bg-success' : 'bg-danger'"
+                                                  th:text="${emprestimo.livro.quantidadeDisponivel} + ' de ' + ${emprestimo.livro.quantidadeTotal}">1 de 1</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ações -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-gear"></i>
+                                    Ações
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a th:if="${emprestimo.status.name() == 'ATIVO'}" 
+                                       th:href="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" 
+                                       class="btn btn-success">
+                                        <i class="bi bi-check-circle"></i>
+                                        Devolver Livro
+                                    </a>
+                                    <a th:if="${emprestimo.status.name() == 'ATIVO'}" 
+                                       th:href="@{/emprestimos/renovar/{id}(id=${emprestimo.id})}" 
+                                       class="btn btn-warning">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Renovar Empréstimo
+                                    </a>
+                                    <a th:href="@{/usuarios/detalhes/{id}(id=${emprestimo.usuario.id})}" 
+                                       class="btn btn-outline-info">
+                                        <i class="bi bi-person"></i>
+                                        Ver Usuário
+                                    </a>
+                                    <a th:href="@{/livros/detalhes/{id}(id=${emprestimo.livro.id})}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="bi bi-book"></i>
+                                        Ver Livro
+                                    </a>
+                                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                                        <i class="bi bi-printer"></i>
+                                        Imprimir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Histórico de Renovações -->
+                        <div class="card mt-4" th:if="${emprestimo.renovacoes != null and !#lists.isEmpty(emprestimo.renovacoes)}">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-clock-history"></i>
+                                    Histórico de Renovações
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:each="renovacao : ${emprestimo.renovacoes}" class="mb-2">
+                                    <small class="text-muted" th:text="${#temporals.format(renovacao.dataRenovacao, 'dd/MM/yyyy HH:mm')}">15/01/2024 10:00</small>
+                                    <br>
+                                    <span th:text="${renovacao.observacoes}">Renovação realizada</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Informações de Multa -->
+                        <div class="card mt-4" th:if="${emprestimo.multa != null and emprestimo.multa > 0}">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    Informações de Multa
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning">
+                                    <strong>Multa Aplicada:</strong>
+                                    <span th:text="'R$ ' + ${#numbers.formatDecimal(emprestimo.multa, 1, 2)}">R$ 5,00</span>
+                                    <br>
+                                    <small>Esta multa deve ser paga antes da devolução do livro.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

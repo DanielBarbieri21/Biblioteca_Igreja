@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Livro - Biblioteca Igreja</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .info-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .book-cover {
+            width: 200px;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="bi bi-book"></i>
+                            Biblioteca Igreja
+                        </h4>
+                        <small class="text-white-50">Sistema de Gestão</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/usuarios">
+                                <i class="bi bi-people"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/livros">
+                                <i class="bi bi-book"></i>
+                                Livros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Empréstimos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/ativos">
+                                <i class="bi bi-clock"></i>
+                                Empréstimos Ativos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/atrasados">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Empréstimos Atrasados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">
+                                <i class="bi bi-info-circle"></i>
+                                Sobre
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-book"></i>
+                        Detalhes do Livro
+                    </h1>
+                    <div class="btn-toolbar">
+                        <div class="btn-group me-2">
+                            <a href="/livros" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i>
+                                Voltar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alertas -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div class="row">
+                    <!-- Informações do Livro -->
+                    <div class="col-md-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-book"></i>
+                                    Informações do Livro
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>ID:</strong>
+                                            <span th:text="${livro.id}">#123</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Título:</strong>
+                                            <span th:text="${livro.titulo}">Título do Livro</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Autor:</strong>
+                                            <span th:text="${livro.autor}">Nome do Autor</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>ISBN:</strong>
+                                            <span th:text="${livro.isbn}">978-85-123456-7-8</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Editora:</strong>
+                                            <span th:text="${livro.editora}">Nome da Editora</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="info-item">
+                                            <strong>Gênero:</strong>
+                                            <span class="badge bg-secondary" th:text="${livro.genero}">Religioso</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Ano de Publicação:</strong>
+                                            <span th:text="${livro.anoPublicacao}">2024</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Páginas:</strong>
+                                            <span th:text="${livro.numeroPaginas}">200</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Idioma:</strong>
+                                            <span th:text="${livro.idioma}">Português</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <strong>Data de Cadastro:</strong>
+                                            <span th:text="${#temporals.format(livro.dataCadastro, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estoque e Disponibilidade -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-box"></i>
+                                    Estoque e Disponibilidade
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <h3 class="text-primary" th:text="${livro.quantidadeTotal}">1</h3>
+                                            <p class="text-muted mb-0">Total de Exemplares</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <h3 class="text-success" th:text="${livro.quantidadeDisponivel}">1</h3>
+                                            <p class="text-muted mb-0">Disponíveis</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="text-center">
+                                            <h3 class="text-warning" th:text="${livro.quantidadeTotal - livro.quantidadeDisponivel}">0</h3>
+                                            <p class="text-muted mb-0">Emprestados</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="progress">
+                                        <div class="progress-bar" 
+                                             th:style="'width: ' + ${(livro.quantidadeDisponivel / livro.quantidadeTotal) * 100} + '%'"
+                                             th:classappend="${livro.quantidadeDisponivel > 0} ? 'bg-success' : 'bg-danger'">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        <span th:text="${livro.quantidadeDisponivel}">1</span> de 
+                                        <span th:text="${livro.quantidadeTotal}">1</span> exemplares disponíveis
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Descrição -->
+                        <div class="card" th:if="${livro.descricao != null and !#strings.isEmpty(livro.descricao)}">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-file-text"></i>
+                                    Descrição
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p th:text="${livro.descricao}">Descrição do livro</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Capa e Ações -->
+                    <div class="col-md-4">
+                        <!-- Capa do Livro -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-image"></i>
+                                    Capa do Livro
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="book-cover">
+                                    <i class="bi bi-book"></i>
+                                </div>
+                                <p class="text-muted mt-2">Capa não disponível</p>
+                            </div>
+                        </div>
+
+                        <!-- Ações -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-gear"></i>
+                                    Ações
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/livros/editar/{id}(id=${livro.id})}" 
+                                       class="btn btn-primary">
+                                        <i class="bi bi-pencil"></i>
+                                        Editar Livro
+                                    </a>
+                                    <a th:if="${livro.quantidadeDisponivel > 0}" 
+                                       th:href="@{/emprestimos/novo?livroId={id}(id=${livro.id})}" 
+                                       class="btn btn-success">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                        Emprestar
+                                    </a>
+                                    <button class="btn btn-outline-secondary" onclick="window.print()">
+                                        <i class="bi bi-printer"></i>
+                                        Imprimir
+                                    </button>
+                                    <form th:action="@{/livros/excluir/{id}(id=${livro.id})}" 
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger w-100 btn-delete" 
+                                                th:disabled="${livro.quantidadeDisponivel < livro.quantidadeTotal}">
+                                            <i class="bi bi-trash"></i>
+                                            Excluir
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status de Disponibilidade -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-info-circle"></i>
+                                    Status
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${livro.quantidadeDisponivel > 0}" class="alert alert-success">
+                                    <i class="bi bi-check-circle"></i>
+                                    <strong>Disponível</strong>
+                                    <br>
+                                    <small>Este livro está disponível para empréstimo.</small>
+                                </div>
+                                <div th:unless="${livro.quantidadeDisponivel > 0}" class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <strong>Indisponível</strong>
+                                    <br>
+                                    <small>Todos os exemplares estão emprestados.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Empréstimos -->
+                <div class="card mt-4" th:if="${livro.emprestimos != null and !#lists.isEmpty(livro.emprestimos)}">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history"></i>
+                            Histórico de Empréstimos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Usuário</th>
+                                        <th>Data Empréstimo</th>
+                                        <th>Data Devolução</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="emprestimo : ${livro.emprestimos}">
+                                        <td th:text="${emprestimo.usuario.nome}">João Silva</td>
+                                        <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}">01/01/2024</td>
+                                        <td th:text="${emprestimo.dataDevolucao != null ? #temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy') : '-'}">-</td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${emprestimo.status.name() == 'ATIVO'} ? 'bg-success' : 
+                                                                  (${emprestimo.status.name() == 'DEVOLVIDO'} ? 'bg-info' : 'bg-warning')"
+                                                  th:text="${emprestimo.status.name()}">ATIVO</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Confirm delete actions
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+                if (!confirm('Tem certeza que deseja excluir este livro?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

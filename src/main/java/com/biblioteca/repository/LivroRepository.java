@@ -38,11 +38,11 @@ public interface LivroRepository extends JpaRepository<Livro, Long> {
     // Buscar todos os livros ativos com paginação
     Page<Livro> findByAtivoTrue(Pageable pageable);
     
-    // Busca avançada por múltiplos critérios
+    // Busca avançada por múltiplos critérios - versão simplificada
     @Query("SELECT l FROM Livro l WHERE " +
-           "(:titulo IS NULL OR LOWER(l.titulo) LIKE LOWER(CONCAT('%', :titulo, '%'))) AND " +
-           "(:autor IS NULL OR LOWER(l.autor) LIKE LOWER(CONCAT('%', :autor, '%'))) AND " +
-           "(:genero IS NULL OR LOWER(l.genero) LIKE LOWER(CONCAT('%', :genero, '%'))) AND " +
+           "(:titulo IS NULL OR l.titulo LIKE CONCAT('%', :titulo, '%')) AND " +
+           "(:autor IS NULL OR l.autor LIKE CONCAT('%', :autor, '%')) AND " +
+           "(:genero IS NULL OR l.genero LIKE CONCAT('%', :genero, '%')) AND " +
            "(:ano IS NULL OR l.anoPublicacao = :ano) AND " +
            "(:disponivel IS NULL OR l.quantidadeDisponivel > 0) AND " +
            "l.ativo = true")
