@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head>
+    <title th:text="${usuario.id != null ? 'Editar Usuário' : 'Novo Usuário'} + ' - Biblioteca Igreja'">Formulário de Usuário</title>
+</head>
+<body>
+    <div th:replace="~{layout :: body}">
+        <div th:fragment="content">
+            <!-- Cabeçalho da página -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-person" th:if="${usuario.id == null}"></i>
+                    <i class="bi bi-person-gear" th:if="${usuario.id != null}"></i>
+                    <span th:text="${usuario.id != null ? 'Editar Usuário' : 'Novo Usuário'}">Formulário</span>
+                </h2>
+                <a href="/usuarios" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Voltar
+                </a>
+            </div>
+
+            <!-- Formulário -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-person-lines-fill"></i>
+                                Dados do Usuário
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/usuarios/salvar}" th:object="${usuario}" method="post">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label for="nome" class="form-label">
+                                            Nome Completo <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="nome" th:field="*{nome}" 
+                                               placeholder="Digite o nome completo" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" 
+                                             th:errors="*{nome}">Erro no nome</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">
+                                            Email <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}" 
+                                               placeholder="usuario@exemplo.com" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}" 
+                                             th:errors="*{email}">Erro no email</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="telefone" class="form-label">Telefone</label>
+                                        <input type="tel" class="form-control" id="telefone" th:field="*{telefone}" 
+                                               placeholder="(32) 99999-9999">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefone')}" 
+                                             th:errors="*{telefone}">Erro no telefone</div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="endereco" class="form-label">Endereço</label>
+                                        <input type="text" class="form-control" id="endereco" th:field="*{endereco}" 
+                                               placeholder="Rua, número, bairro, cidade">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('endereco')}" 
+                                             th:errors="*{endereco}">Erro no endereço</div>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="d-flex justify-content-between">
+                                    <a href="/usuarios" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle"></i>
+                                        Cancelar
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span th:text="${usuario.id != null ? 'Atualizar' : 'Cadastrar'}">Salvar</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações adicionais -->
+            <div class="row justify-content-center mt-4" th:if="${usuario.id != null}">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-info-circle"></i>
+                                Informações do Cadastro
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Data de Cadastro:</label>
+                                    <p class="form-control-plaintext" th:text="${#temporals.format(usuario.dataCadastro, 'dd/MM/yyyy HH:mm')}">
+                                        01/01/2024 10:00
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Status:</label>
+                                    <p class="form-control-plaintext">
+                                        <span class="badge bg-success" th:if="${usuario.ativo}">Ativo</span>
+                                        <span class="badge bg-danger" th:unless="${usuario.ativo}">Inativo</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Empréstimos Ativos:</label>
+                                    <p class="form-control-plaintext">
+                                        <span class="badge bg-info" th:text="${usuario.quantidadeEmprestimosAtivos()}">0</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Máscara para telefone
+        document.getElementById('telefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 11) {
+                value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (value.length >= 7) {
+                value = value.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            } else if (value.length >= 3) {
+                value = value.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            }
+            e.target.value = value;
+        });
+
+        // Validação em tempo real
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!nome || !email) {
+                e.preventDefault();
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return false;
+            }
+            
+            // Validação básica de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Por favor, insira um email válido.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

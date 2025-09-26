@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head>
+    <title>Livros - Biblioteca Igreja</title>
+</head>
+<body>
+    <div th:replace="~{layout :: body}">
+        <div th:fragment="content">
+            <!-- Cabeçalho da página -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-book"></i>
+                    Catálogo de Livros
+                </h2>
+                <a href="/livros/novo" class="btn btn-primary">
+                    <i class="bi bi-book"></i>
+                    Novo Livro
+                </a>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" action="/livros">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="titulo" class="form-label">Título:</label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" 
+                                       th:value="${titulo}" placeholder="Digite o título">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="autor" class="form-label">Autor:</label>
+                                <input type="text" class="form-control" id="autor" name="autor" 
+                                       th:value="${autor}" placeholder="Digite o autor">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="genero" class="form-label">Gênero:</label>
+                                <select class="form-select" id="genero" name="genero">
+                                    <option value="">Todos</option>
+                                    <option th:each="genero : ${generos}" 
+                                            th:value="${genero[0]}" 
+                                            th:text="${genero[0]} + ' (' + ${genero[1]} + ')'"
+                                            th:selected="${genero[0] == genero}">Gênero</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="ano" class="form-label">Ano:</label>
+                                <input type="number" class="form-control" id="ano" name="ano" 
+                                       th:value="${ano}" placeholder="2024" min="1000" max="2030">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="disponivel" class="form-label">Disponível:</label>
+                                <select class="form-select" id="disponivel" name="disponivel">
+                                    <option value="">Todos</option>
+                                    <option value="true" th:selected="${disponivel == true}">Sim</option>
+                                    <option value="false" th:selected="${disponivel == false}">Não</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-2">
+                                <label for="size" class="form-label">Itens por página:</label>
+                                <select class="form-select" id="size" name="size">
+                                    <option value="10" th:selected="${size == 10}">10</option>
+                                    <option value="25" th:selected="${size == 25}">25</option>
+                                    <option value="50" th:selected="${size == 50}">50</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortBy" class="form-label">Ordenar por:</label>
+                                <select class="form-select" id="sortBy" name="sortBy">
+                                    <option value="titulo" th:selected="${sortBy == 'titulo'}">Título</option>
+                                    <option value="autor" th:selected="${sortBy == 'autor'}">Autor</option>
+                                    <option value="genero" th:selected="${sortBy == 'genero'}">Gênero</option>
+                                    <option value="anoPublicacao" th:selected="${sortBy == 'anoPublicacao'}">Ano</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortDir" class="form-label">Ordem:</label>
+                                <select class="form-select" id="sortDir" name="sortDir">
+                                    <option value="asc" th:selected="${sortDir == 'asc'}">Crescente</option>
+                                    <option value="desc" th:selected="${sortDir == 'desc'}">Decrescente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-outline-primary me-2">
+                                    <i class="bi bi-search"></i>
+                                    Buscar
+                                </button>
+                                <a href="/livros" class="btn btn-outline-secondary me-2">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </a>
+                                <a href="/livros/disponiveis" class="btn btn-outline-success">
+                                    <i class="bi bi-bookmark-check"></i>
+                                    Ver Disponíveis
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabela de livros -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list"></i>
+                        Lista de Livros
+                        <span class="badge bg-secondary ms-2" th:text="${totalItems}">0</span>
+                    </h5>
+                    <small class="text-white-50">
+                        Página <span th:text="${currentPage + 1}">1</span> de <span th:text="${totalPages}">1</span>
+                    </small>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(livros.content)}" class="text-center py-5">
+                        <i class="bi bi-book" style="font-size: 4rem; color: #ccc;"></i>
+                        <h5 class="text-muted mt-3">Nenhum livro encontrado</h5>
+                        <p class="text-muted">Comece adicionando o primeiro livro ao catálogo.</p>
+                        <a href="/livros/novo" class="btn btn-primary">
+                            <i class="bi bi-book"></i>
+                            Adicionar Livro
+                        </a>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(livros.content)}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>Gênero</th>
+                                    <th>Ano</th>
+                                    <th>Disponibilidade</th>
+                                    <th width="150">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="livro : ${livros.content}">
+                                    <td>
+                                        <strong th:text="${livro.titulo}">Título</strong>
+                                        <br>
+                                        <small class="text-muted" th:text="${livro.isbn}" th:if="${livro.isbn}">ISBN</small>
+                                    </td>
+                                    <td th:text="${livro.autor}">Autor</td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${livro.genero}" th:if="${livro.genero}">Gênero</span>
+                                    </td>
+                                    <td th:text="${livro.anoPublicacao}" th:if="${livro.anoPublicacao}">2024</td>
+                                    <td th:unless="${livro.anoPublicacao}">-</td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="badge" 
+                                                  th:classappend="${livro.isDisponivel()} ? 'bg-success' : 'bg-danger'"
+                                                  th:text="${livro.quantidadeDisponivel + '/' + livro.quantidadeTotal}">
+                                                1/1
+                                            </span>
+                                            <small class="text-muted" th:if="${livro.isDisponivel()}">Disponível</small>
+                                            <small class="text-muted" th:unless="${livro.isDisponivel()}">Indisponível</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a th:href="@{/livros/detalhes/{id}(id=${livro.id})}" 
+                                               class="btn btn-outline-info" title="Ver detalhes">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/livros/editar/{id}(id=${livro.id})}" 
+                                               class="btn btn-outline-primary" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form th:action="@{/livros/excluir/{id}(id=${livro.id})}" 
+                                                  method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger btn-delete" 
+                                                        title="Excluir" th:disabled="${livro.quantidadeDisponivel < livro.quantidadeTotal}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginação -->
+                    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
+                        <div>
+                            <small class="text-muted">
+                                Mostrando <span th:text="${livros.number * livros.size + 1}">1</span> a 
+                                <span th:text="${livros.number * livros.size + livros.numberOfElements}">10</span> de 
+                                <span th:text="${livros.totalElements}">100</span> livros
+                            </small>
+                        </div>
+                        
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/livros(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, titulo=${titulo}, autor=${autor}, genero=${genero}, ano=${ano}, disponivel=${disponivel})}">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                                
+                                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                                    class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                                    <a class="page-link" th:href="@{/livros(page=${i}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, titulo=${titulo}, autor=${autor}, genero=${genero}, ano=${ano}, disponivel=${disponivel})}"
+                                       th:text="${i + 1}">1</a>
+                                </li>
+                                
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/livros(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, titulo=${titulo}, autor=${autor}, genero=${genero}, ano=${ano}, disponivel=${disponivel})}">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

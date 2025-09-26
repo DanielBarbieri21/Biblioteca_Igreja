@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head>
+    <title>Dashboard - Biblioteca Igreja</title>
+</head>
+<body>
+    <div th:replace="~{layout :: body}">
+        <div th:fragment="content">
+            <!-- Estatísticas principais -->
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stats-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Usuários</div>
+                                    <div class="stats-number" th:text="${totalUsuarios}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-people" style="font-size: 2rem; opacity: 0.3;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stats-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Livros</div>
+                                    <div class="stats-number" th:text="${totalLivros}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-book" style="font-size: 2rem; opacity: 0.3;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stats-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Livros Disponíveis</div>
+                                    <div class="stats-number" th:text="${livrosDisponiveis}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-bookmark-check" style="font-size: 2rem; opacity: 0.3;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stats-card">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Empréstimos Ativos</div>
+                                    <div class="stats-number" th:text="${emprestimosAtivos}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="bi bi-arrow-left-right" style="font-size: 2rem; opacity: 0.3;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas importantes -->
+            <div class="row mb-4" th:if="${emprestimosAtrasados > 0}">
+                <div class="col-12">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Atenção!</strong> Existem <span th:text="${emprestimosAtrasados}">0</span> empréstimos atrasados que precisam de atenção.
+                        <a href="/emprestimos/atrasados" class="alert-link">Ver empréstimos atrasados</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Empréstimos vencendo em breve -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-clock"></i>
+                                Empréstimos Vencendo em Breve
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(emprestimosVencendo)}" class="text-center text-muted">
+                                <i class="bi bi-check-circle" style="font-size: 3rem;"></i>
+                                <p>Nenhum empréstimo vencendo nos próximos 7 dias</p>
+                            </div>
+                            <div th:unless="${#lists.isEmpty(emprestimosVencendo)}">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Usuário</th>
+                                                <th>Livro</th>
+                                                <th>Vencimento</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="emprestimo : ${emprestimosVencendo}">
+                                                <td th:text="${emprestimo[1]}">Usuário</td>
+                                                <td th:text="${emprestimo[2]}">Livro</td>
+                                                <td>
+                                                    <span th:text="${#temporals.format(emprestimo[3], 'dd/MM/yyyy')}">Data</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Livros mais emprestados -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-trophy"></i>
+                                Livros Mais Emprestados
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(livrosMaisEmprestados)}" class="text-center text-muted">
+                                <i class="bi bi-book" style="font-size: 3rem;"></i>
+                                <p>Nenhum empréstimo registrado ainda</p>
+                            </div>
+                            <div th:unless="${#lists.isEmpty(livrosMaisEmprestados)}">
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Livro</th>
+                                                <th>Autor</th>
+                                                <th>Empréstimos</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="livro : ${livrosMaisEmprestados}">
+                                                <td th:text="${livro[0]}">Título</td>
+                                                <td th:text="${livro[1]}">Autor</td>
+                                                <td>
+                                                    <span class="badge bg-primary" th:text="${livro[2]}">0</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Gráfico de livros por gênero -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-pie-chart"></i>
+                                Livros por Gênero
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="generoChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de empréstimos por mês -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-bar-chart"></i>
+                                Empréstimos por Mês
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="emprestimosChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ações rápidas -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="bi bi-lightning"></i>
+                                Ações Rápidas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <a href="/usuarios/novo" class="btn btn-primary w-100">
+                                        <i class="bi bi-person-plus"></i>
+                                        Novo Usuário
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="/livros/novo" class="btn btn-primary w-100">
+                                        <i class="bi bi-book"></i>
+                                        Novo Livro
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="/emprestimos/novo" class="btn btn-primary w-100">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                        Novo Empréstimo
+                                    </a>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <a href="/emprestimos/ativos" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-clock"></i>
+                                        Ver Empréstimos Ativos
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gráfico de livros por gênero
+        const generoData = /*[[${livrosPorGenero}]]*/ [];
+        if (generoData.length > 0) {
+            const ctx1 = document.getElementById('generoChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: generoData.map(item => item[0]),
+                    datasets: [{
+                        data: generoData.map(item => item[1]),
+                        backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // Gráfico de empréstimos por mês
+        const emprestimosData = /*[[${emprestimosPorMes}]]*/ [];
+        if (emprestimosData.length > 0) {
+            const ctx2 = document.getElementById('emprestimosChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: emprestimosData.map(item => item[1] + '/' + item[0]),
+                    datasets: [{
+                        label: 'Empréstimos',
+                        data: emprestimosData.map(item => item[2]),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

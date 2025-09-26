@@ -1,0 +1,23 @@
+-- Inserção de dados de exemplo
+-- Comentado temporariamente para evitar erros de migração
+
+-- Usuários de exemplo
+-- INSERT INTO usuario (nome, email, telefone, endereco) VALUES
+-- ('João Silva', 'joao.silva@email.com', '(32) 99999-1111', 'Rua das Flores, 123 - Centro'),
+-- ('Maria Santos', 'maria.santos@email.com', '(32) 99999-2222', 'Av. Principal, 456 - Bairro Novo'),
+-- ('Pedro Oliveira', 'pedro.oliveira@email.com', '(32) 99999-3333', 'Rua da Paz, 789 - Vila Esperança'),
+-- ('Ana Costa', 'ana.costa@email.com', '(32) 99999-4444', 'Rua da Esperança, 321 - Jardim'),
+-- ('Carlos Ferreira', 'carlos.ferreira@email.com', '(32) 99999-5555', 'Av. Central, 654 - Centro');
+
+-- Livros de exemplo
+-- INSERT INTO livro (titulo, autor, isbn, genero, ano_publicacao, editora, quantidade_total, quantidade_disponivel) VALUES
+-- ('A Bíblia Sagrada', 'Vários Autores', '978-85-311-0001-1', 'Religioso', 2020, 'SBB', 5, 5),
+-- ('Dom Casmurro', 'Machado de Assis', '978-85-311-0002-2', 'Literatura Brasileira', 1899, 'Ática', 3, 3),
+-- ('O Pequeno Príncipe', 'Antoine de Saint-Exupéry', '978-85-311-0003-3', 'Infantil', 1943, 'Agir', 4, 4),
+-- ('Cem Anos de Solidão', 'Gabriel García Márquez', '978-85-311-0004-4', 'Literatura Estrangeira', 1967, 'Record', 2, 2),
+-- ('A Arte da Guerra', 'Sun Tzu', '978-85-311-0005-5', 'Filosofia', 500, 'Martins Fontes', 3, 3),
+-- ('O Senhor dos Anéis', 'J.R.R. Tolkien', '978-85-311-0006-6', 'Fantasia', 1954, 'Martins Fontes', 2, 2),
+-- ('Harry Potter e a Pedra Filosofal', 'J.K. Rowling', '978-85-311-0007-7', 'Fantasia', 1997, 'Rocco', 3, 3),
+-- ('1984', 'George Orwell', '978-85-311-0008-8', 'Ficção Científica', 1949, 'Companhia das Letras', 2, 2),
+-- ('A Revolução dos Bichos', 'George Orwell', '978-85-311-0009-9', 'Ficção', 1945, 'Companhia das Letras', 3, 3),
+-- ('O Alquimista', 'Paulo Coelho', '978-85-311-0010-0', 'Ficção', 1988, 'Rocco', 4, 4);

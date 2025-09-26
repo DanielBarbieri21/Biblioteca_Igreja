@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<head>
+    <title>Usuários - Biblioteca Igreja</title>
+</head>
+<body>
+    <div th:replace="~{layout :: body}">
+        <div th:fragment="content">
+            <!-- Cabeçalho da página -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-people"></i>
+                    Gestão de Usuários
+                </h2>
+                <a href="/usuarios/novo" class="btn btn-primary">
+                    <i class="bi bi-person-plus"></i>
+                    Novo Usuário
+                </a>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" action="/usuarios">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="nome" class="form-label">Buscar por nome:</label>
+                                <input type="text" class="form-control" id="nome" name="nome" 
+                                       th:value="${nome}" placeholder="Digite o nome do usuário">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="size" class="form-label">Itens por página:</label>
+                                <select class="form-select" id="size" name="size">
+                                    <option value="10" th:selected="${size == 10}">10</option>
+                                    <option value="25" th:selected="${size == 25}">25</option>
+                                    <option value="50" th:selected="${size == 50}">50</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortBy" class="form-label">Ordenar por:</label>
+                                <select class="form-select" id="sortBy" name="sortBy">
+                                    <option value="nome" th:selected="${sortBy == 'nome'}">Nome</option>
+                                    <option value="email" th:selected="${sortBy == 'email'}">Email</option>
+                                    <option value="dataCadastro" th:selected="${sortBy == 'dataCadastro'}">Data Cadastro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="sortDir" class="form-label">Ordem:</label>
+                                <select class="form-select" id="sortDir" name="sortDir">
+                                    <option value="asc" th:selected="${sortDir == 'asc'}">Crescente</option>
+                                    <option value="desc" th:selected="${sortDir == 'desc'}">Decrescente</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-outline-primary me-2">
+                                    <i class="bi bi-search"></i>
+                                    Buscar
+                                </button>
+                                <a href="/usuarios" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabela de usuários -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list"></i>
+                        Lista de Usuários
+                        <span class="badge bg-secondary ms-2" th:text="${totalItems}">0</span>
+                    </h5>
+                    <small class="text-white-50">
+                        Página <span th:text="${currentPage + 1}">1</span> de <span th:text="${totalPages}">1</span>
+                    </small>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(usuarios.content)}" class="text-center py-5">
+                        <i class="bi bi-people" style="font-size: 4rem; color: #ccc;"></i>
+                        <h5 class="text-muted mt-3">Nenhum usuário encontrado</h5>
+                        <p class="text-muted">Comece cadastrando o primeiro usuário da biblioteca.</p>
+                        <a href="/usuarios/novo" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i>
+                            Cadastrar Usuário
+                        </a>
+                    </div>
+
+                    <div th:unless="${#lists.isEmpty(usuarios.content)}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Telefone</th>
+                                    <th>Data Cadastro</th>
+                                    <th>Empréstimos Ativos</th>
+                                    <th width="150">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="usuario : ${usuarios.content}">
+                                    <td>
+                                        <strong th:text="${usuario.nome}">Nome</strong>
+                                    </td>
+                                    <td th:text="${usuario.email}">email@exemplo.com</td>
+                                    <td th:text="${usuario.telefone}">(32) 99999-9999</td>
+                                    <td th:text="${#temporals.format(usuario.dataCadastro, 'dd/MM/yyyy')}">01/01/2024</td>
+                                    <td>
+                                        <span class="badge bg-info" th:text="${usuario.quantidadeEmprestimosAtivos()}">0</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a th:href="@{/usuarios/detalhes/{id}(id=${usuario.id})}" 
+                                               class="btn btn-outline-info" title="Ver detalhes">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/usuarios/editar/{id}(id=${usuario.id})}" 
+                                               class="btn btn-outline-primary" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form th:action="@{/usuarios/excluir/{id}(id=${usuario.id})}" 
+                                                  method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-danger btn-delete" 
+                                                        title="Excluir" th:disabled="${usuario.quantidadeEmprestimosAtivos() > 0}">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Paginação -->
+                    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
+                        <div>
+                            <small class="text-muted">
+                                Mostrando <span th:text="${usuarios.number * usuarios.size + 1}">1</span> a 
+                                <span th:text="${usuarios.number * usuarios.size + usuarios.numberOfElements}">10</span> de 
+                                <span th:text="${usuarios.totalElements}">100</span> usuários
+                            </small>
+                        </div>
+                        
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/usuarios(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, nome=${nome})}">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                                
+                                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                                    class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                                    <a class="page-link" th:href="@{/usuarios(page=${i}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, nome=${nome})}"
+                                       th:text="${i + 1}">1</a>
+                                </li>
+                                
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/usuarios(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, nome=${nome})}">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
