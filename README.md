@@ -74,7 +74,7 @@ cd biblioteca-igreja
 #### **Criar o banco de dados:**
 ```sql
 CREATE DATABASE biblioteca_comunitaria;
-CREATE USER postgres WITH PASSWORD '246895';
+CREATE USER postgres WITH PASSWORD '******'
 GRANT ALL PRIVILEGES ON DATABASE biblioteca_comunitaria TO postgres;
 ```
 
