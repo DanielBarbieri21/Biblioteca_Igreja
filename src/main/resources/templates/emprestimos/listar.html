@@ -1,212 +1,280 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Empréstimos - Biblioteca Igreja</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+    </style>
 </head>
 <body>
-    <div th:replace="~{layout :: body}">
-        <div th:fragment="content">
-            <!-- Cabeçalho da página -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>
-                    <i class="bi bi-arrow-left-right"></i>
-                    Gestão de Empréstimos
-                </h2>
-                <a href="/emprestimos/novo" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i>
-                    Novo Empréstimo
-                </a>
-            </div>
-
-            <!-- Filtros -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form method="get" action="/emprestimos">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label for="status" class="form-label">Status:</label>
-                                <select class="form-select" id="status" name="status">
-                                    <option value="">Todos</option>
-                                    <option value="ATIVO" th:selected="${status == 'ATIVO'}">Ativos</option>
-                                    <option value="DEVOLVIDO" th:selected="${status == 'DEVOLVIDO'}">Devolvidos</option>
-                                    <option value="ATRASADO" th:selected="${status == 'ATRASADO'}">Atrasados</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="size" class="form-label">Itens por página:</label>
-                                <select class="form-select" id="size" name="size">
-                                    <option value="10" th:selected="${size == 10}">10</option>
-                                    <option value="25" th:selected="${size == 25}">25</option>
-                                    <option value="50" th:selected="${size == 50}">50</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="sortBy" class="form-label">Ordenar por:</label>
-                                <select class="form-select" id="sortBy" name="sortBy">
-                                    <option value="dataEmprestimo" th:selected="${sortBy == 'dataEmprestimo'}">Data Empréstimo</option>
-                                    <option value="dataPrevistaDevolucao" th:selected="${sortBy == 'dataPrevistaDevolucao'}">Data Devolução</option>
-                                    <option value="status" th:selected="${sortBy == 'status'}">Status</option>
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label for="sortDir" class="form-label">Ordem:</label>
-                                <select class="form-select" id="sortDir" name="sortDir">
-                                    <option value="desc" th:selected="${sortDir == 'desc'}">Decrescente</option>
-                                    <option value="asc" th:selected="${sortDir == 'asc'}">Crescente</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3 d-flex align-items-end">
-                                <button type="submit" class="btn btn-outline-primary me-2">
-                                    <i class="bi bi-search"></i>
-                                    Buscar
-                                </button>
-                                <a href="/emprestimos" class="btn btn-outline-secondary me-2">
-                                    <i class="bi bi-arrow-clockwise"></i>
-                                </a>
-                                <a href="/emprestimos/vencendo" class="btn btn-outline-warning">
-                                    <i class="bi bi-clock"></i>
-                                    Vencendo
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Tabela de empréstimos -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="bi bi-list"></i>
-                        Lista de Empréstimos
-                        <span class="badge bg-secondary ms-2" th:text="${totalItems}">0</span>
-                    </h5>
-                    <small class="text-white-50">
-                        Página <span th:text="${currentPage + 1}">1</span> de <span th:text="${totalPages}">1</span>
-                    </small>
-                </div>
-                <div class="card-body">
-                    <div th:if="${#lists.isEmpty(emprestimos.content)}" class="text-center py-5">
-                        <i class="bi bi-arrow-left-right" style="font-size: 4rem; color: #ccc;"></i>
-                        <h5 class="text-muted mt-3">Nenhum empréstimo encontrado</h5>
-                        <p class="text-muted">Comece realizando o primeiro empréstimo.</p>
-                        <a href="/emprestimos/novo" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i>
-                            Novo Empréstimo
-                        </a>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="bi bi-book"></i>
+                            Biblioteca Igreja
+                        </h4>
+                        <small class="text-white-50">Sistema de Gestão</small>
                     </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/usuarios">
+                                <i class="bi bi-people"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/livros">
+                                <i class="bi bi-book"></i>
+                                Livros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/emprestimos">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Empréstimos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/ativos">
+                                <i class="bi bi-clock"></i>
+                                Empréstimos Ativos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/atrasados">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Empréstimos Atrasados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">
+                                <i class="bi bi-info-circle"></i>
+                                Sobre
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
-                    <div th:unless="${#lists.isEmpty(emprestimos.content)}" class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Usuário</th>
-                                    <th>Livro</th>
-                                    <th>Data Empréstimo</th>
-                                    <th>Data Devolução</th>
-                                    <th>Status</th>
-                                    <th>Multa</th>
-                                    <th width="200">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="emprestimo : ${emprestimos.content}">
-                                    <td>
-                                        <strong th:text="${emprestimo.usuario.nome}">Usuário</strong>
-                                        <br>
-                                        <small class="text-muted" th:text="${emprestimo.usuario.email}">email@exemplo.com</small>
-                                    </td>
-                                    <td>
-                                        <strong th:text="${emprestimo.livro.titulo}">Livro</strong>
-                                        <br>
-                                        <small class="text-muted" th:text="${emprestimo.livro.autor}">Autor</small>
-                                    </td>
-                                    <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy')}">01/01/2024</td>
-                                    <td>
-                                        <span th:text="${#temporals.format(emprestimo.dataPrevistaDevolucao, 'dd/MM/yyyy')}">15/01/2024</span>
-                                        <br>
-                                        <small class="text-muted" th:if="${emprestimo.isAtrasado()}" 
-                                               th:text="'Atrasado há ' + ${emprestimo.diasAtraso} + ' dias'">Atrasado</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge" 
-                                              th:classappend="${emprestimo.status.name() == 'ATIVO'} ? 'bg-success' : 
-                                                             (${emprestimo.status.name() == 'ATRASADO'} ? 'bg-warning' : 'bg-secondary')"
-                                              th:text="${emprestimo.status.descricao}">Status</span>
-                                    </td>
-                                    <td>
-                                        <span th:if="${emprestimo.multa != null && emprestimo.multa > 0}" 
-                                              class="badge bg-danger" 
-                                              th:text="'R$ ' + ${#numbers.formatDecimal(emprestimo.multa, 1, 2)}">R$ 0,00</span>
-                                        <span th:unless="${emprestimo.multa != null && emprestimo.multa > 0}" 
-                                              class="text-muted">-</span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a th:href="@{/emprestimos/detalhes/{id}(id=${emprestimo.id})}" 
-                                               class="btn btn-outline-info" title="Ver detalhes">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                            
-                                            <form th:if="${emprestimo.status.name() == 'ATIVO'}" 
-                                                  th:action="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" 
-                                                  method="post" class="d-inline">
-                                                <button type="submit" class="btn btn-outline-success btn-delete" 
-                                                        title="Devolver livro">
-                                                    <i class="bi bi-arrow-return-left"></i>
-                                                </button>
-                                            </form>
-                                            
-                                            <form th:if="${emprestimo.status.name() == 'ATIVO'}" 
-                                                  th:action="@{/emprestimos/renovar/{id}(id=${emprestimo.id})}" 
-                                                  method="post" class="d-inline">
-                                                <button type="submit" class="btn btn-outline-warning btn-delete" 
-                                                        title="Renovar empréstimo">
-                                                    <i class="bi bi-arrow-clockwise"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-arrow-left-right"></i>
+                        Gestão de Empréstimos
+                    </h1>
+                    <a href="/emprestimos/novo" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i>
+                        Novo Empréstimo
+                    </a>
+                </div>
 
-                    <!-- Paginação -->
-                    <div th:if="${totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
-                        <div>
-                            <small class="text-muted">
-                                Mostrando <span th:text="${emprestimos.number * emprestimos.size + 1}">1</span> a 
-                                <span th:text="${emprestimos.number * emprestimos.size + emprestimos.numberOfElements}">10</span> de 
-                                <span th:text="${emprestimos.totalElements}">100</span> empréstimos
-                            </small>
-                        </div>
-                        
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                                    <a class="page-link" th:href="@{/emprestimos(page=${currentPage - 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, status=${status})}">
-                                        <i class="bi bi-chevron-left"></i>
+                <!-- Alertas -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="get" action="/emprestimos">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="status" class="form-label">Status:</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="">Todos</option>
+                                        <option value="ATIVO" th:selected="${status == 'ATIVO'}">Ativo</option>
+                                        <option value="DEVOLVIDO" th:selected="${status == 'DEVOLVIDO'}">Devolvido</option>
+                                        <option value="ATRASADO" th:selected="${status == 'ATRASADO'}">Atrasado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="usuario" class="form-label">Usuário:</label>
+                                    <input type="text" class="form-control" id="usuario" name="usuario" 
+                                           th:value="${usuario}" placeholder="Nome do usuário">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="livro" class="form-label">Livro:</label>
+                                    <input type="text" class="form-control" id="livro" name="livro" 
+                                           th:value="${livro}" placeholder="Título do livro">
+                                </div>
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-outline-primary me-2">
+                                        <i class="bi bi-search"></i>
+                                        Buscar
+                                    </button>
+                                    <a href="/emprestimos" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-clockwise"></i>
                                     </a>
-                                </li>
-                                
-                                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
-                                    class="page-item" th:classappend="${i == currentPage} ? 'active'">
-                                    <a class="page-link" th:href="@{/emprestimos(page=${i}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, status=${status})}"
-                                       th:text="${i + 1}">1</a>
-                                </li>
-                                
-                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                                    <a class="page-link" th:href="@{/emprestimos(page=${currentPage + 1}, size=${size}, sortBy=${sortBy}, sortDir=${sortDir}, status=${status})}">
-                                        <i class="bi bi-chevron-right"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </div>
+
+                <!-- Tabela de empréstimos -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list"></i>
+                            Lista de Empréstimos
+                            <span class="badge bg-secondary ms-2" th:text="${totalItems ?: 0}">0</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${emprestimos == null or #lists.isEmpty(emprestimos)}" class="text-center py-5">
+                            <i class="bi bi-arrow-left-right" style="font-size: 4rem; color: #ccc;"></i>
+                            <h5 class="text-muted mt-3">Nenhum empréstimo encontrado</h5>
+                            <p class="text-muted">Comece realizando o primeiro empréstimo da biblioteca.</p>
+                            <a href="/emprestimos/novo" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i>
+                                Novo Empréstimo
+                            </a>
+                        </div>
+
+                        <div th:unless="${emprestimos == null or #lists.isEmpty(emprestimos)}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Usuário</th>
+                                        <th>Livro</th>
+                                        <th>Data Empréstimo</th>
+                                        <th>Data Prevista</th>
+                                        <th>Data Devolução</th>
+                                        <th>Status</th>
+                                        <th>Multa</th>
+                                        <th width="150">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="emprestimo : ${emprestimos}">
+                                        <td>
+                                            <strong th:text="${emprestimo.usuario.nome}">Usuário</strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${emprestimo.usuario.email}">email@exemplo.com</small>
+                                        </td>
+                                        <td>
+                                            <strong th:text="${emprestimo.livro.titulo}">Livro</strong>
+                                            <br>
+                                            <small class="text-muted" th:text="${emprestimo.livro.autor}">Autor</small>
+                                        </td>
+                                        <td th:text="${#temporals.format(emprestimo.dataEmprestimo, 'dd/MM/yyyy HH:mm')}">01/01/2024</td>
+                                        <td th:text="${#temporals.format(emprestimo.dataPrevistaDevolucao, 'dd/MM/yyyy')}">15/01/2024</td>
+                                        <td th:text="${emprestimo.dataDevolucao != null ? #temporals.format(emprestimo.dataDevolucao, 'dd/MM/yyyy HH:mm') : '-'}">-</td>
+                                        <td>
+                                            <span class="badge" 
+                                                  th:classappend="${emprestimo.status.name() == 'ATIVO'} ? 'bg-success' : 
+                                                                  (${emprestimo.status.name() == 'DEVOLVIDO'} ? 'bg-info' : 'bg-warning')"
+                                                  th:text="${emprestimo.status.name()}">ATIVO</span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${emprestimo.multa != null and emprestimo.multa > 0}" 
+                                                  class="badge bg-danger" 
+                                                  th:text="'R$ ' + ${#numbers.formatDecimal(emprestimo.multa, 1, 2)}">R$ 0,00</span>
+                                            <span th:unless="${emprestimo.multa != null and emprestimo.multa > 0}" 
+                                                  class="text-muted">-</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a th:if="${emprestimo.status.name() == 'ATIVO'}" 
+                                                   th:href="@{/emprestimos/devolver/{id}(id=${emprestimo.id})}" 
+                                                   class="btn btn-outline-success" title="Devolver">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </a>
+                                                <a th:href="@{/emprestimos/detalhes/{id}(id=${emprestimo.id})}" 
+                                                   class="btn btn-outline-info" title="Ver detalhes">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
 </body>
 </html>

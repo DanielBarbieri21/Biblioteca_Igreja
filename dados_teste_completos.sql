@@ -1,6 +1,12 @@
--- Inserção de dados de exemplo completos para testar todas as funcionalidades
+-- Script SQL com dados fictícios completos para testar todas as funcionalidades
+-- da Biblioteca da Igreja
 
--- Usuários de exemplo
+-- Limpar dados existentes (opcional - descomente se necessário)
+-- DELETE FROM emprestimo;
+-- DELETE FROM livro;
+-- DELETE FROM usuario;
+
+-- Inserir usuários fictícios
 INSERT INTO usuario (nome, email, telefone, endereco, ativo) VALUES
 ('João Silva Santos', 'joao.silva@igreja.com', '(11) 99999-1111', 'Rua das Flores, 123 - Centro', true),
 ('Maria Santos Oliveira', 'maria.santos@igreja.com', '(11) 99999-2222', 'Av. Principal, 456 - Bairro Novo', true),
@@ -13,7 +19,7 @@ INSERT INTO usuario (nome, email, telefone, endereco, ativo) VALUES
 ('Marcos Pereira Souza', 'marcos.pereira@igreja.com', '(11) 99999-9999', 'Av. Paulista, 369 - Centro', true),
 ('Juliana Souza Martins', 'juliana.souza@igreja.com', '(11) 99999-0000', 'Rua da Fé, 741 - Vila Fé', true);
 
--- Livros de exemplo com diferentes gêneros
+-- Inserir livros fictícios com diferentes gêneros e quantidades
 INSERT INTO livro (titulo, autor, isbn, genero, ano_publicacao, editora, quantidade_total, quantidade_disponivel, ativo) VALUES
 -- Livros Religiosos
 ('A Bíblia Sagrada - Nova Versão Internacional', 'Vários Autores', '978-85-311-0001-1', 'Religioso', 2020, 'SBB', 10, 8, true),
@@ -47,7 +53,7 @@ INSERT INTO livro (titulo, autor, isbn, genero, ano_publicacao, editora, quantid
 ('A História do Brasil', 'Boris Fausto', '978-85-311-0019-9', 'História', 1994, 'Edusp', 2, 1, true),
 ('Memórias Póstumas de Brás Cubas', 'Machado de Assis', '978-85-311-0020-0', 'Literatura Brasileira', 1881, 'Ática', 3, 2, true);
 
--- Empréstimos de exemplo para testar funcionalidades
+-- Inserir empréstimos fictícios para testar funcionalidades
 INSERT INTO emprestimo (usuario_id, livro_id, data_emprestimo, data_prevista_devolucao, data_devolucao, status, observacoes, multa) VALUES
 -- Empréstimos ativos (não devolvidos)
 (1, 1, '2024-09-20 10:00:00', '2024-10-05', NULL, 'ATIVO', 'Empréstimo para estudo bíblico', 0.00),
@@ -87,3 +93,10 @@ UPDATE livro SET quantidade_disponivel = quantidade_total - (
 ) WHERE id IN (
     SELECT DISTINCT livro_id FROM emprestimo WHERE status = 'ATIVO'
 );
+
+-- Verificar dados inseridos
+SELECT 'Usuários inseridos:' as info, COUNT(*) as total FROM usuario WHERE ativo = true;
+SELECT 'Livros inseridos:' as info, COUNT(*) as total FROM livro WHERE ativo = true;
+SELECT 'Empréstimos ativos:' as info, COUNT(*) as total FROM emprestimo WHERE status = 'ATIVO';
+SELECT 'Empréstimos devolvidos:' as info, COUNT(*) as total FROM emprestimo WHERE status = 'DEVOLVIDO';
+SELECT 'Empréstimos atrasados:' as info, COUNT(*) as total FROM emprestimo WHERE status = 'ATIVO' AND data_prevista_devolucao < CURRENT_DATE;

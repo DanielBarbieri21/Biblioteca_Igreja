@@ -1,298 +1,288 @@
 <!DOCTYPE html>
-<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html}">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Biblioteca Igreja</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.75rem;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 1rem;
+        }
+        .stats-card .card-body {
+            padding: 1.5rem;
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <div th:replace="~{layout :: body}">
-        <div th:fragment="content">
-            <!-- Estatísticas principais -->
-            <div class="row mb-4">
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stats-card">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Usuários</div>
-                                    <div class="stats-number" th:text="${totalUsuarios}">0</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="bi bi-people" style="font-size: 2rem; opacity: 0.3;"></i>
-                                </div>
-                            </div>
-                        </div>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="bi bi-book"></i>
+                            Biblioteca Igreja
+                        </h4>
+                        <small class="text-white-50">Sistema de Gestão</small>
                     </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stats-card">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Livros</div>
-                                    <div class="stats-number" th:text="${totalLivros}">0</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="bi bi-book" style="font-size: 2rem; opacity: 0.3;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stats-card">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Livros Disponíveis</div>
-                                    <div class="stats-number" th:text="${livrosDisponiveis}">0</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="bi bi-bookmark-check" style="font-size: 2rem; opacity: 0.3;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stats-card">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-uppercase mb-1">Empréstimos Ativos</div>
-                                    <div class="stats-number" th:text="${emprestimosAtivos}">0</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="bi bi-arrow-left-right" style="font-size: 2rem; opacity: 0.3;"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alertas importantes -->
-            <div class="row mb-4" th:if="${emprestimosAtrasados > 0}">
-                <div class="col-12">
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <strong>Atenção!</strong> Existem <span th:text="${emprestimosAtrasados}">0</span> empréstimos atrasados que precisam de atenção.
-                        <a href="/emprestimos/atrasados" class="alert-link">Ver empréstimos atrasados</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <!-- Empréstimos vencendo em breve -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/">
+                                <i class="bi bi-speedometer2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/usuarios">
+                                <i class="bi bi-people"></i>
+                                Usuários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/livros">
+                                <i class="bi bi-book"></i>
+                                Livros
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos">
+                                <i class="bi bi-arrow-left-right"></i>
+                                Empréstimos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/ativos">
                                 <i class="bi bi-clock"></i>
-                                Empréstimos Vencendo em Breve
-                            </h5>
+                                Empréstimos Ativos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/emprestimos/atrasados">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Empréstimos Atrasados
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/sobre">
+                                <i class="bi bi-info-circle"></i>
+                                Sobre
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link" href="/logout">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Dashboard</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-download"></i>
+                                Exportar
+                            </button>
                         </div>
-                        <div class="card-body">
-                            <div th:if="${#lists.isEmpty(emprestimosVencendo)}" class="text-center text-muted">
-                                <i class="bi bi-check-circle" style="font-size: 3rem;"></i>
-                                <p>Nenhum empréstimo vencendo nos próximos 7 dias</p>
+                    </div>
+                </div>
+
+                <!-- Estatísticas principais -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Usuários</div>
+                                        <div class="stats-number" th:text="${totalUsuarios ?: 0}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-people" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    </div>
+                                </div>
                             </div>
-                            <div th:unless="${#lists.isEmpty(emprestimosVencendo)}">
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Usuário</th>
-                                                <th>Livro</th>
-                                                <th>Vencimento</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="emprestimo : ${emprestimosVencendo}">
-                                                <td th:text="${emprestimo[1]}">Usuário</td>
-                                                <td th:text="${emprestimo[2]}">Livro</td>
-                                                <td>
-                                                    <span th:text="${#temporals.format(emprestimo[3], 'dd/MM/yyyy')}">Data</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total de Livros</div>
+                                        <div class="stats-number" th:text="${totalLivros ?: 0}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-book" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Livros Disponíveis</div>
+                                        <div class="stats-number" th:text="${livrosDisponiveis ?: 0}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-bookmark-check" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stats-card">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-uppercase mb-1">Empréstimos Ativos</div>
+                                        <div class="stats-number" th:text="${emprestimosAtivos ?: 0}">0</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="bi bi-arrow-left-right" style="font-size: 2rem; opacity: 0.3;"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Livros mais emprestados -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-trophy"></i>
-                                Livros Mais Emprestados
-                            </h5>
+                <!-- Alertas importantes -->
+                <div class="row mb-4" th:if="${emprestimosAtrasados != null and emprestimosAtrasados > 0}">
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Atenção!</strong> Existem <span th:text="${emprestimosAtrasados}">0</span> empréstimos atrasados que precisam de atenção.
+                            <a href="/emprestimos/atrasados" class="alert-link">Ver empréstimos atrasados</a>
                         </div>
-                        <div class="card-body">
-                            <div th:if="${#lists.isEmpty(livrosMaisEmprestados)}" class="text-center text-muted">
-                                <i class="bi bi-book" style="font-size: 3rem;"></i>
-                                <p>Nenhum empréstimo registrado ainda</p>
+                    </div>
+                </div>
+
+                <!-- Ações rápidas -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-lightning"></i>
+                                    Ações Rápidas
+                                </h5>
                             </div>
-                            <div th:unless="${#lists.isEmpty(livrosMaisEmprestados)}">
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Livro</th>
-                                                <th>Autor</th>
-                                                <th>Empréstimos</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="livro : ${livrosMaisEmprestados}">
-                                                <td th:text="${livro[0]}">Título</td>
-                                                <td th:text="${livro[1]}">Autor</td>
-                                                <td>
-                                                    <span class="badge bg-primary" th:text="${livro[2]}">0</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <!-- Gráfico de livros por gênero -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-pie-chart"></i>
-                                Livros por Gênero
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="generoChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gráfico de empréstimos por mês -->
-                <div class="col-lg-6 mb-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-bar-chart"></i>
-                                Empréstimos por Mês
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="emprestimosChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ações rápidas -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="bi bi-lightning"></i>
-                                Ações Rápidas
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-3 mb-2">
-                                    <a href="/usuarios/novo" class="btn btn-primary w-100">
-                                        <i class="bi bi-person-plus"></i>
-                                        Novo Usuário
-                                    </a>
-                                </div>
-                                <div class="col-md-3 mb-2">
-                                    <a href="/livros/novo" class="btn btn-primary w-100">
-                                        <i class="bi bi-book"></i>
-                                        Novo Livro
-                                    </a>
-                                </div>
-                                <div class="col-md-3 mb-2">
-                                    <a href="/emprestimos/novo" class="btn btn-primary w-100">
-                                        <i class="bi bi-arrow-left-right"></i>
-                                        Novo Empréstimo
-                                    </a>
-                                </div>
-                                <div class="col-md-3 mb-2">
-                                    <a href="/emprestimos/ativos" class="btn btn-outline-primary w-100">
-                                        <i class="bi bi-clock"></i>
-                                        Ver Empréstimos Ativos
-                                    </a>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <a href="/usuarios/novo" class="btn btn-primary w-100">
+                                            <i class="bi bi-person-plus"></i>
+                                            Novo Usuário
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <a href="/livros/novo" class="btn btn-primary w-100">
+                                            <i class="bi bi-book"></i>
+                                            Novo Livro
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <a href="/emprestimos/novo" class="btn btn-primary w-100">
+                                            <i class="bi bi-arrow-left-right"></i>
+                                            Novo Empréstimo
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <a href="/emprestimos/ativos" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-clock"></i>
+                                            Ver Empréstimos Ativos
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <!-- Informações do sistema -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="bi bi-info-circle"></i>
+                                    Informações do Sistema
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Bem-vindo ao Sistema de Gestão da Biblioteca da Igreja!</strong></p>
+                                <p>Este sistema permite gerenciar usuários, livros e empréstimos de forma eficiente.</p>
+                                <p>Use o menu lateral para navegar pelas diferentes funcionalidades do sistema.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <script>
-        // Gráfico de livros por gênero
-        const generoData = /*[[${livrosPorGenero}]]*/ [];
-        if (generoData.length > 0) {
-            const ctx1 = document.getElementById('generoChart').getContext('2d');
-            new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: generoData.map(item => item[0]),
-                    datasets: [{
-                        data: generoData.map(item => item[1]),
-                        backgroundColor: [
-                            '#667eea', '#764ba2', '#f093fb', '#f5576c',
-                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
-
-        // Gráfico de empréstimos por mês
-        const emprestimosData = /*[[${emprestimosPorMes}]]*/ [];
-        if (emprestimosData.length > 0) {
-            const ctx2 = document.getElementById('emprestimosChart').getContext('2d');
-            new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: emprestimosData.map(item => item[1] + '/' + item[0]),
-                    datasets: [{
-                        label: 'Empréstimos',
-                        data: emprestimosData.map(item => item[2]),
-                        borderColor: '#667eea',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
-    </script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
