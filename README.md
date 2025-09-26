@@ -137,7 +137,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/biblioteca_comunitaria
     username: postgres
-    password: 246895
+    password: *******
   
   # Configurações JPA
   jpa:
@@ -277,7 +277,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 ## 📝 Changelog
 
-### **v1.0.0** (2024-01-XX)
+### **v1.0.0** (2025-09-25)
 - ✅ Sistema completo de gestão de biblioteca
 - ✅ Interface web moderna e responsiva
 - ✅ API REST completa
