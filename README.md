@@ -310,4 +310,6 @@ Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICE
 
 ---
 
-**Desenvolvido com ❤️ para a Biblioteca Comunitária da Igreja - Cascatinha, Juiz de Fora/MG**
+## 👨‍💻 Desenvolvido por:
+IronDev Software. Contato: dibarbieri21@gmail.com | (32) 99118-6728
+
